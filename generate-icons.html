@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate PWA Icons</title>
+</head>
+<body style="background: #222; display: flex; gap: 20px; padding: 20px;">
+    <canvas id="icon192" width="192" height="192" style="background: white;"></canvas>
+    <canvas id="icon512" width="512" height="512" style="background: white;"></canvas>
+    
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Cream background
+            ctx.fillStyle = '#f5f0e6';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Simple black diamond
+            ctx.fillStyle = '#18181b';
+            ctx.save();
+            ctx.translate(size/2, size/2);
+            ctx.rotate(Math.PI / 4);
+            const squareSize = size * 0.35;
+            ctx.fillRect(-squareSize/2, -squareSize/2, squareSize, squareSize);
+            ctx.restore();
+        }
+        
+        drawIcon(document.getElementById('icon192'), 192);
+        drawIcon(document.getElementById('icon512'), 512);
+    </script>
+    
+    <div style="color: white;">
+        <p>Right-click and save as:</p>
+        <p>1. pwa-192x192.png<br>2. pwa-512x512.png</p>
+        <p>Save both to public folder</p>
+    </div>
+</body>
+</html>
+
