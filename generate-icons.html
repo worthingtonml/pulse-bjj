@@ -1,39 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Generate PWA Icons</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Premium Triangular Motion Icon Generator</title>
+  <style>
+    :root { --bg: #f5f0e6; --ink: #18181b; }
+    html, body { margin: 0; background: #fff; color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+    .wrap { max-width: 980px; margin: 32px auto; padding: 24px; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    p { margin: 0 0 14px; line-height: 1.55; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 24px; }
+    .card { border: 1px solid #e6e2d8; border-radius: 16px; background: #fff; padding: 16px; box-shadow: 0 2px 8px rgba(24,24,27,.06); }
+    .canvas-wrap { display:grid; place-items:center; background:#fff; border-radius: 12px; overflow:hidden; padding:8px; }
+    .meta { display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:8px; flex-wrap:wrap; }
+    button { appearance:none; border:1px solid #d9d4c9; border-radius:12px; background:#fff; color:var(--ink); padding:10px 12px; cursor:pointer; font-weight:600; box-shadow:0 1px 2px rgba(24,24,27,.05); transition:transform .06s ease, box-shadow .2s ease; }
+    button:hover { box-shadow:0 4px 14px rgba(24,24,27,.10); }
+    button:active { transform: translateY(1px); }
+    .footer { opacity:.7; font-size:12px; margin-top: 20px; }
+  </style>
 </head>
-<body style="background: #222; display: flex; gap: 20px; padding: 20px;">
-    <canvas id="icon192" width="192" height="192" style="background: white;"></canvas>
-    <canvas id="icon512" width="512" height="512" style="background: white;"></canvas>
-    
-    <script>
-        function drawIcon(canvas, size) {
-            const ctx = canvas.getContext('2d');
-            
-            // Cream background
-            ctx.fillStyle = '#f5f0e6';
-            ctx.fillRect(0, 0, size, size);
-            
-            // Simple black diamond
-            ctx.fillStyle = '#18181b';
-            ctx.save();
-            ctx.translate(size/2, size/2);
-            ctx.rotate(Math.PI / 4);
-            const squareSize = size * 0.35;
-            ctx.fillRect(-squareSize/2, -squareSize/2, squareSize, squareSize);
-            ctx.restore();
-        }
-        
-        drawIcon(document.getElementById('icon192'), 192);
-        drawIcon(document.getElementById('icon512'), 512);
-    </script>
-    
-    <div style="color: white;">
-        <p>Right-click and save as:</p>
-        <p>1. pwa-192x192.png<br>2. pwa-512x512.png</p>
-        <p>Save both to public folder</p>
+<body>
+  <div class="wrap">
+    <h1>Premium Triangular Motion Icon Generator</h1>
+    <p>Generates a forward‑leaning, asymmetrical triangular shard design — aggressive, dynamic, and high‑prestige. Perfect for fitness brands needing movement and strength in an abstract form.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="canvas-wrap"><canvas id="c192" width="192" height="192"></canvas></div>
+        <div class="meta"><strong>192×192</strong><button id="dl192">Download PNG</button></div>
+      </div>
+      <div class="card">
+        <div class="canvas-wrap"><canvas id="c512" width="512" height="512"></canvas></div>
+        <div class="meta"><strong>512×512</strong><button id="dl512">Download PNG</button></div>
+      </div>
     </div>
+
+    <div class="footer">Abstract, faceted triangle form — sport‑neutral but loaded with motion.</div>
+  </div>
+
+  <script>
+    const BG = '#f5f0e6';
+    const INK = '#18181b';
+
+    function drawMotionTriangle(canvas) {
+      const ctx = canvas.getContext('2d');
+      const S = Math.min(canvas.width, canvas.height);
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const pad = S * 0.14;
+      const W = S - pad * 2;
+      const H = S - pad * 2;
+      const map = (x,y)=>[pad + x*W, pad + y*H];
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Outer shape: forward leaning, asymmetrical triangle shard
+      const V = {
+        a: map(0.5, 0.0), // top apex
+        b: map(0.95, 0.85), // bottom right
+        c: map(0.05, 0.95), // bottom left
+        d: map(0.65, 0.45), // mid forward point
+        e: map(0.35, 0.55), // mid back point
+        f: map(0.5, 0.75), // inner low point
+      };
+
+      // Outer edges (slightly thicker for prestige)
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = Math.max(1.8, S * 0.015);
+      ctx.beginPath();
+      ctx.moveTo(...V.a);
+      ctx.lineTo(...V.b);
+      ctx.lineTo(...V.c);
+      ctx.closePath();
+      ctx.stroke();
+
+      // Inner facets (thinner)
+      ctx.lineWidth = Math.max(1, S * 0.008);
+      const facets = [
+        ['a','d'], ['a','e'], ['d','b'], ['e','c'], ['d','f'], ['e','f'], ['f','b'], ['f','c']
+      ];
+      ctx.beginPath();
+      for (const [p1,p2] of facets) {
+        ctx.moveTo(...V[p1]);
+        ctx.lineTo(...V[p2]);
+      }
+      ctx.stroke();
+    }
+
+    function toPNG(canvas, filename) {
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    const c192 = document.getElementById('c192');
+    const c512 = document.getElementById('c512');
+    drawMotionTriangle(c192);
+    drawMotionTriangle(c512);
+
+    document.getElementById('dl192').addEventListener('click', () => toPNG(c192, 'icon-192.png'));
+    document.getElementById('dl512').addEventListener('click', () => toPNG(c512, 'icon-512.png'));
+  </script>
 </body>
 </html>
-
