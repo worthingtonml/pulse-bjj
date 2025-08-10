@@ -1,38 +1,787 @@
-.App {
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.app {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  font-family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app.dark {
+  background-color: #000;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app.light {
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* Hexagon pattern background */
+.hexagon-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.4;
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+  mask-image: linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.5) 100%);
+  -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.5) 100%);
+}
+
+.app.dark .hexagon-pattern {
+  background-image: 
+    linear-gradient(30deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111),
+    linear-gradient(150deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111),
+    linear-gradient(30deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111),
+    linear-gradient(150deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111);
+  opacity: 0.4;
+}
+
+.app.light .hexagon-pattern {
+  background-image: 
+    linear-gradient(30deg, #f5f5f5 12%, transparent 12.5%, transparent 87%, #f5f5f5 87.5%, #f5f5f5),
+    linear-gradient(150deg, #f5f5f5 12%, transparent 12.5%, transparent 87%, #f5f5f5 87.5%, #f5f5f5),
+    linear-gradient(30deg, #f5f5f5 12%, transparent 12.5%, transparent 87%, #f5f5f5 87.5%, #f5f5f5),
+    linear-gradient(150deg, #f5f5f5 12%, transparent 12.5%, transparent 87%, #f5f5f5 87.5%, #f5f5f5);
+  opacity: 0.3;
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  font-size: 17px;
+  font-weight: 600;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid;
+}
+
+.app.dark .status-bar {
+  color: white;
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.app.light .status-bar {
+  color: #000;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Main Container */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 44px);
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 24px 20px;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app.dark .header {
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.app.light .header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.app.dark .header h1 {
+  color: #ffffff;
+}
+
+.app.light .header h1 {
+  color: #000000;
+}
+
+.header h1.pulse {
+  animation: singlePulse 0.8s ease-in-out;
+}
+
+.tagline {
+  font-family: "Outfit", sans-serif;
+  font-size: 13px;
+  margin: 4px 0 0 0;
+  letter-spacing: 0.3px;
+  font-weight: 400;
+}
+
+.app.dark .tagline {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.app.light .tagline {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.theme-toggle {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid;
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.app.dark .theme-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.app.light .theme-toggle {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #000;
+}
+
+/* Content Area */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 20px 20px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Messages */
+.message {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  max-width: 85%;
+}
+
+.message.user {
+  align-items: flex-end;
+  align-self: flex-end;
+}
+
+.message.bot {
+  align-items: flex-start;
+  align-self: flex-start;
+}
+
+.message-content {
+  border-radius: 24px;
+  font-size: 16px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  max-width: 100%;
+  white-space: pre-wrap;
+}
+
+.message.user .message-content {
+  padding: 16px 24px;
+  background-color: #000;
+  color: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 500;
+}
+
+.message.bot .message-content {
+  padding: 0;
+  background-color: transparent;
+  font-weight: 400;
+}
+
+.app.dark .message.bot .message-content {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app.light .message.bot .message-content {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.message-time {
+  font-size: 12px;
+  margin-top: 4px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.app.dark .message-time {
+  color: rgba(255, 255, 255, 0.5);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.app.light .message-time {
+  color: rgba(0, 0, 0, 0.5);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Typing Indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  opacity: 1;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.app.dark .typing-dots .dot {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.app.light .typing-dots .dot {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.typing-dots .dot:nth-child(1) { animation-delay: 0s; }
+.typing-dots .dot:nth-child(2) { animation-delay: 0.16s; }
+.typing-dots .dot:nth-child(3) { animation-delay: 0.32s; }
+
+.typing-indicator span {
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.app.dark .typing-indicator span {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.app.light .typing-indicator span {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Journal Tab */
+.journal-tab {
+  padding: 40px 0 20px 0;
+}
+
+.journal-input-container {
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.journal-textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 24px;
+  border-radius: 24px;
+  border: none;
+  font-size: 16px;
+  font-family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  outline: none;
+  resize: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+  line-height: 1.5;
+}
+
+.app.dark .journal-textarea {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.app.light .journal-textarea {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.journal-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.app.light .journal-textarea::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.journal-submit {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.journal-submit:not(:disabled) {
+  cursor: pointer;
+}
+
+.journal-submit:disabled {
+  cursor: not-allowed;
+}
+
+.app.dark .journal-submit:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.app.dark .journal-submit:disabled {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.app.light .journal-submit:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.9);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app.light .journal-submit:disabled {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.journal-entry {
+  padding: 24px;
+  border-radius: 24px;
+  border: none;
+  backdrop-filter: blur(20px);
+  margin-bottom: 24px;
+}
+
+.app.dark .journal-entry {
+  background-color: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.app.light .journal-entry {
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.journal-date {
+  font-size: 13px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.app.dark .journal-date {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.app.light .journal-date {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.journal-text {
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.app.dark .journal-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app.light .journal-text {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.journal-empty {
+  text-align: center;
+  font-size: 16px;
+  padding: 80px 20px;
+  font-weight: 400;
+}
+
+.app.dark .journal-empty {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.app.light .journal-empty {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* More Tab */
+.more-tab {
+  padding: 40px 0 20px 0;
+}
+
+.more-option {
+  padding: 20px 24px;
+  border-radius: 20px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 -4px;
+}
+
+.more-option:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.app.light .more-option:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.more-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.app.dark .more-icon {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.app.light .more-icon {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.more-content {
+  flex: 1;
+}
+
+.more-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  letter-spacing: -0.01em;
+}
+
+.app.dark .more-title {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app.light .more-title {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.more-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.app.dark .more-subtitle {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.app.light .more-subtitle {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.more-arrow {
+  font-size: 16px;
+}
+
+.app.dark .more-arrow {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.app.light .more-arrow {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* Chat Input */
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  border-top: 1px solid;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.app.dark .chat-input-container {
+  background: rgba(0, 0, 0, 0.5);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.app.light .chat-input-container {
+  background: rgba(255, 255, 255, 0.8);
+  border-top-color: rgba(0, 0, 0, 0.1);
+}
+
+.input-action-btn {
+  padding: 12px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app.dark .input-action-btn {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.app.light .input-action-btn {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.input-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.app.light .input-action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.chat-input {
+  flex: 1;
+  padding: 18px 24px;
+  border-radius: 28px;
+  border: 1.5px solid;
+  font-size: 16px;
+  font-weight: 400;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.app.dark .chat-input {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app.light .chat-input {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.app.light .chat-input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.send-button {
+  padding: 16px 24px;
+  border-radius: 28px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  height: 56px;
+}
+
+.app.dark .send-button {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
+}
+
+.app.light .send-button {
+  background-color: rgba(0, 0, 0, 0.9);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Navigation */
+.navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0 20px 0;
+  backdrop-filter: blur(20px);
+  border-top: 1px solid;
+}
+
+.app.dark .navigation {
+  background: rgba(0, 0, 0, 0.8);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.app.light .navigation {
+  background: rgba(255, 255, 255, 0.9);
+  border-top-color: rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+  padding: 0 20px;
+}
+
+.nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 12px;
 }
 
-.App-link {
-  color: #61dafb;
+.nav-item span {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.nav-item:not(.active) {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.app.light .nav-item:not(.active) {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.nav-item.active {
+  color: #ffffff;
+}
+
+.app.light .nav-item.active {
+  color: #000000;
+}
+
+.app.dark .nav-item.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.app.light .nav-item.active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Animations */
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: scale(0); 
+    opacity: 0.5; 
   }
-  to {
-    transform: rotate(360deg);
+  40% { 
+    transform: scale(1); 
+    opacity: 1; 
   }
+}
+
+@keyframes singlePulse {
+  0% { 
+    transform: scale(1); 
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.15);
+  }
+  50% { 
+    transform: scale(1.015); 
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 6px 12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 255, 255, 0.2);
+  }
+  100% { 
+    transform: scale(1); 
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+}
+
+.app.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.app.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.app.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
