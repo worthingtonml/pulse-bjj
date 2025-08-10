@@ -779,6 +779,6 @@ const App = () => {
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} isDark={isDark} />
     </div>
   );
-};
+}; 
 
 export default App;
