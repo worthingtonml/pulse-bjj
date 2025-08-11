@@ -175,7 +175,61 @@ const ChatLog = ({ messages, isTyping, isDark }) => {
   );
 };
 
-const Composer = ({ input, setInput, onSubmit, isDark }) => {
+const QuickPrompts = ({ onSelectPrompt, isDark }) => {
+  const prompts = [
+    "How do I escape side control?",
+    "Best warm-up routine for BJJ?",
+    "Tips for my first competition?",
+    "How to improve my guard passing?",
+    "Submission defense fundamentals?",
+    "Conditioning exercises for BJJ?",
+    "How to develop better grips?",
+    "Mental preparation strategies?"
+  ];
+
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: '60px',
+      left: '12px',
+      backgroundColor: isDark ? 'rgba(0,0,0,0.95)' : 'rgba(255,255,255,0.98)',
+      border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+      borderRadius: '12px',
+      padding: '8px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      maxHeight: '300px',
+      overflowY: 'auto',
+      zIndex: 1000,
+      minWidth: '250px'
+    }}>
+      {prompts.map((prompt, i) => (
+        <button
+          key={i}
+          onClick={() => onSelectPrompt(prompt)}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '10px 12px',
+            textAlign: 'left',
+            backgroundColor: 'transparent',
+            border: 'none',
+            borderRadius: '8px',
+            color: isDark ? '#ffffff' : '#000000',
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+        >
+          {prompt}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const Composer = ({ input, setInput, onSubmit, isDark, isRecording, onVoiceToggle, onQuickPromptsToggle, showQuickPrompts }) => {
   return (
     <div style={{
       position: 'fixed',
@@ -190,10 +244,12 @@ const Composer = ({ input, setInput, onSubmit, isDark }) => {
       <div style={{
         maxWidth: '768px',
         margin: '0 auto',
-        padding: '16px 20px'
+        padding: '16px 20px',
+        position: 'relative'
       }}>
         <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
           <button 
+            onClick={onQuickPromptsToggle}
             style={{
               width: '40px',
               height: '40px',
@@ -201,18 +257,21 @@ const Composer = ({ input, setInput, onSubmit, isDark }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: isDark ? '#27272a' : '#ffffff',
+              backgroundColor: showQuickPrompts ? '#18181b' : (isDark ? '#27272a' : '#ffffff'),
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
               cursor: 'pointer',
-              flexShrink: 0
+              flexShrink: 0,
+              transition: 'all 0.2s'
             }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{color: isDark ? '#a1a1aa' : '#71717a'}}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" 
+                 style={{color: showQuickPrompts ? '#ffffff' : (isDark ? '#a1a1aa' : '#71717a')}}>
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 8v8"/>
               <path d="M8 12h8"/>
             </svg>
           </button>
           <button 
+            onClick={onVoiceToggle}
             style={{
               width: '40px',
               height: '40px',
@@ -220,12 +279,15 @@ const Composer = ({ input, setInput, onSubmit, isDark }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: isDark ? '#27272a' : '#ffffff',
+              backgroundColor: isRecording ? '#dc2626' : (isDark ? '#27272a' : '#ffffff'),
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
               cursor: 'pointer',
-              flexShrink: 0
+              flexShrink: 0,
+              transition: 'all 0.2s',
+              animation: isRecording ? 'pulse 2s infinite' : 'none'
             }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{color: isDark ? '#a1a1aa' : '#71717a'}}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" 
+                 style={{color: isRecording ? '#ffffff' : (isDark ? '#a1a1aa' : '#71717a')}}>
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
               <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
               <path d="M12 19v4"/>
@@ -244,10 +306,11 @@ const Composer = ({ input, setInput, onSubmit, isDark }) => {
               fontSize: '14px',
               fontFamily: 'inherit'
             }}
-            placeholder="Ask about techniques, strategy, or get personalized advice..."
+            placeholder={isRecording ? "Listening..." : "Ask about techniques, strategy, or get personalized advice..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && onSubmit(e)}
+            disabled={isRecording}
           />
           <button 
             onClick={onSubmit}
@@ -264,6 +327,305 @@ const Composer = ({ input, setInput, onSubmit, isDark }) => {
             }}>
             OSS
           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Journal = ({ isDark }) => {
+  const [entries, setEntries] = useState(() => {
+    const saved = localStorage.getItem('journalEntries');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 1,
+        date: 'TODAY',
+        time: '2 hours ago',
+        title: 'Evening Rolls - Guard Retention',
+        content: 'Worked on maintaining frames when opponent stands in closed guard. Key detail: keep elbow connection to knee when they try to break posture...',
+        tags: ['Guard', 'Technique']
+      }
+    ];
+  });
+  const [newEntry, setNewEntry] = useState('');
+
+  const addEntry = () => {
+    if (!newEntry.trim()) return;
+    
+    const entry = {
+      id: Date.now(),
+      date: 'TODAY',
+      time: 'Just now',
+      title: newEntry.split('\n')[0].substring(0, 50),
+      content: newEntry,
+      tags: ['Training']
+    };
+    
+    const updated = [entry, ...entries];
+    setEntries(updated);
+    localStorage.setItem('journalEntries', JSON.stringify(updated));
+    setNewEntry('');
+  };
+
+  return (
+    <div style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`
+      }}>
+        <div style={{
+          maxWidth: '768px',
+          margin: '0 auto',
+          padding: '20px'
+        }}>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: '700',
+            color: isDark ? '#ffffff' : '#000000',
+            marginBottom: '4px'
+          }}>Training Journal</h2>
+          <p style={{fontSize: '14px', color: isDark ? '#71717a' : '#71717a'}}>
+            Track your progress, techniques, and insights
+          </p>
+        </div>
+      </div>
+      
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        paddingBottom: '180px'
+      }}>
+        <div style={{
+          maxWidth: '768px',
+          margin: '0 auto',
+          padding: '20px'
+        }}>
+          {entries.map((entry) => (
+            <div key={entry.id} style={{
+              marginBottom: '16px',
+              padding: '16px',
+              borderRadius: '16px',
+              backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.9)',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '12px'
+              }}>
+                <span style={{fontSize: '12px', fontWeight: '600', color: isDark ? '#a1a1aa' : '#71717a'}}>
+                  {entry.date}
+                </span>
+                <span style={{fontSize: '12px', color: isDark ? '#71717a' : '#a1a1aa'}}>
+                  {entry.time}
+                </span>
+              </div>
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                color: isDark ? '#ffffff' : '#000000',
+                marginBottom: '8px'
+              }}>{entry.title}</h3>
+              <p style={{
+                fontSize: '14px',
+                lineHeight: '1.5',
+                color: isDark ? '#d4d4d8' : '#3f3f46',
+                marginBottom: '12px'
+              }}>
+                {entry.content}
+              </p>
+              <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                {entry.tags.map((tag, i) => (
+                  <span key={i} style={{
+                    padding: '4px 10px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    backgroundColor: 'rgba(59,130,246,0.1)',
+                    color: '#2563eb'
+                  }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{
+        position: 'fixed',
+        bottom: '60px',
+        left: '0',
+        right: '0',
+        padding: '16px',
+        backgroundColor: isDark ? 'rgba(0,0,0,0.95)' : 'rgba(245,240,230,0.98)',
+        borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)'
+      }}>
+        <div style={{
+          maxWidth: '768px',
+          margin: '0 auto',
+          display: 'flex',
+          gap: '12px'
+        }}>
+          <textarea
+            placeholder="Log today's training..."
+            value={newEntry}
+            onChange={(e) => setNewEntry(e.target.value)}
+            style={{
+              flex: 1,
+              minHeight: '60px',
+              maxHeight: '120px',
+              padding: '12px',
+              borderRadius: '12px',
+              backgroundColor: isDark ? '#27272a' : '#ffffff',
+              color: isDark ? '#ffffff' : '#000000',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+              outline: 'none',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              resize: 'vertical'
+            }}
+          />
+          <button 
+            onClick={addEntry}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '12px',
+              backgroundColor: '#18181b',
+              color: '#ffffff',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              alignSelf: 'flex-end'
+            }}>
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const More = ({ isDark }) => {
+  return (
+    <div style={{
+      flex: 1,
+      overflowY: 'auto',
+      padding: '20px'
+    }}>
+      <div style={{
+        maxWidth: '768px',
+        margin: '0 auto'
+      }}>
+        <h2 style={{
+          fontSize: '24px',
+          fontWeight: '700',
+          color: isDark ? '#ffffff' : '#000000',
+          marginBottom: '24px'
+        }}>Settings & More</h2>
+        
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px'
+        }}>
+          <div style={{
+            padding: '16px',
+            borderRadius: '12px',
+            backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: isDark ? '#ffffff' : '#000000',
+              marginBottom: '8px'
+            }}>About PULSE BJJ</h3>
+            <p style={{
+              fontSize: '14px',
+              color: isDark ? '#a1a1aa' : '#71717a',
+              lineHeight: '1.5'
+            }}>
+              Your AI-powered Brazilian Jiu-Jitsu coach. Get personalized training advice, track your progress, and improve your game.
+            </p>
+          </div>
+
+          <div style={{
+            padding: '16px',
+            borderRadius: '12px',
+            backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: isDark ? '#ffffff' : '#000000',
+              marginBottom: '8px'
+            }}>Export Data</h3>
+            <button 
+              onClick={() => {
+                const data = {
+                  messages: localStorage.getItem('chatMessages') || '[]',
+                  journal: localStorage.getItem('journalEntries') || '[]'
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pulse-bjj-data.json';
+                a.click();
+              }}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                backgroundColor: '#18181b',
+                color: '#ffffff',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+              Download Training Data
+            </button>
+          </div>
+
+          <div style={{
+            padding: '16px',
+            borderRadius: '12px',
+            backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: isDark ? '#ffffff' : '#000000',
+              marginBottom: '8px'
+            }}>Clear Data</h3>
+            <button 
+              onClick={() => {
+                if (confirm('Are you sure? This will clear all messages and journal entries.')) {
+                  localStorage.clear();
+                  window.location.reload();
+                }
+              }}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                backgroundColor: '#dc2626',
+                color: '#ffffff',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+              Reset App
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -325,28 +687,38 @@ const App = () => {
   const [isDark, setIsDark] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      sender: 'bot',
-      text: "I've been studying your game. What's been giving you the most trouble on the mats lately?",
-      timestamp: new Date()
-    }
-  ]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [showQuickPrompts, setShowQuickPrompts] = useState(false);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('chatMessages');
+    return saved ? JSON.parse(saved) : [
+      {
+        sender: 'bot',
+        text: "I've been studying your game. What's been giving you the most trouble on the mats lately?",
+        timestamp: new Date()
+      }
+    ];
+  });
   const [activeTab, setActiveTab] = useState('chat');
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
 
   const toggleDarkMode = () => {
     setIsDark(prev => !prev);
   };
 
-  // AI-POWERED HANDLE SUBMIT
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, customInput = null) => {
     e?.preventDefault?.();
-    if (!input.trim()) return;
+    const textToSend = customInput || input;
+    if (!textToSend.trim()) return;
     
-    const newMessage = { sender: 'user', text: input, timestamp: new Date() };
+    const newMessage = { sender: 'user', text: textToSend, timestamp: new Date() };
     setMessages(prev => [...prev, newMessage]);
-    const userInput = input;
     setInput('');
+    setShowQuickPrompts(false);
     setIsTyping(true);
     
     try {
@@ -363,7 +735,7 @@ const App = () => {
               role: 'system',
               content: 'You are an expert BJJ coach. Provide helpful, specific training advice. Be concise but detailed. Use BJJ terminology naturally. Keep responses under 3 paragraphs.'
             },
-            { role: 'user', content: userInput }
+            { role: 'user', content: textToSend }
           ],
           temperature: 0.7,
           max_tokens: 300
@@ -382,12 +754,65 @@ const App = () => {
     } catch (error) {
       console.error('Error:', error);
       setIsTyping(false);
+      // Fallback to hardcoded response if API fails
+      const responses = {
+        'side control': 'To escape side control, first protect your neck and create frames with your arms. Bridge to create space, then shrimp away while bringing your knee in to recover guard. Focus on timing your bridge when they shift weight forward.',
+        'guard': 'For guard retention, control the distance with your feet on their hips. Use grips on sleeves or collar to break their posture. If they stand, transition to open guard variations like De La Riva or Spider guard.',
+        'armbar': 'From closed guard armbar: Control their posture, secure the arm, pivot your hips perpendicular to theirs. Squeeze knees together, control the wrist, and extend your hips while pulling the arm down.',
+        'default': 'Focus on fundamental movements: shrimping, bridging, and technical stand-ups. These form the foundation of all BJJ techniques. Drill these daily before class.'
+      };
+      
+      const topic = Object.keys(responses).find(key => textToSend.toLowerCase().includes(key)) || 'default';
       setMessages(prev => [...prev, { 
         sender: 'bot', 
-        text: "Sorry, I'm having trouble connecting. Please check your connection and try again.",
+        text: responses[topic],
         timestamp: new Date()
       }]);
     }
+  };
+
+  const handleVoiceToggle = () => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Speech recognition is not supported in your browser. Try Chrome or Safari.');
+      return;
+    }
+
+    if (isRecording) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsRecording(false);
+    } else {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsRecording(false);
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognition.start();
+      setIsRecording(true);
+    }
+  };
+
+  const handleQuickPrompt = (prompt) => {
+    handleSubmit(null, prompt);
   };
 
   useEffect(() => {
@@ -401,6 +826,17 @@ const App = () => {
         40% {
           transform: scale(1.3);
           opacity: 1;
+        }
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
         }
       }
       * {
@@ -431,7 +867,6 @@ const App = () => {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       overflow: 'hidden'
     }}>
-      {/* Background texture */}
       <div style={{
         position: 'absolute',
         inset: 0,
@@ -440,7 +875,6 @@ const App = () => {
         pointerEvents: 'none'
       }} />
 
-      {/* Main content area */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -453,48 +887,29 @@ const App = () => {
         {activeTab === 'chat' && (
           <>
             <ChatLog messages={messages} isTyping={isTyping} isDark={isDark} />
-            <Composer input={input} setInput={setInput} onSubmit={handleSubmit} isDark={isDark} />
+            <Composer 
+              input={input} 
+              setInput={setInput} 
+              onSubmit={handleSubmit} 
+              isDark={isDark}
+              isRecording={isRecording}
+              onVoiceToggle={handleVoiceToggle}
+              onQuickPromptsToggle={() => setShowQuickPrompts(!showQuickPrompts)}
+              showQuickPrompts={showQuickPrompts}
+            />
+            {showQuickPrompts && (
+              <QuickPrompts 
+                onSelectPrompt={handleQuickPrompt}
+                isDark={isDark}
+              />
+            )}
           </>
         )}
         
-        {activeTab === 'journal' && (
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden'
-          }}>
-            {/* Journal implementation here - keeping it simple for now */}
-            <div style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: isDark ? '#71717a' : '#71717a'
-            }}>
-              <div style={{textAlign: 'center'}}>
-                <h2>Training Journal</h2>
-                <p>Coming soon...</p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {activeTab === 'more' && (
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{textAlign: 'center', color: isDark ? '#71717a' : '#a1a1aa'}}>
-              <div style={{fontSize: '18px', fontWeight: '500'}}>More Options Coming Soon</div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'journal' && <Journal isDark={isDark} />}
+        {activeTab === 'more' && <More isDark={isDark} />}
       </div>
 
-      {/* Bottom Navigation */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} isDark={isDark} />
     </div>
   );
