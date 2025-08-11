@@ -1,3 +1,7 @@
+// Prevent any reportWebVitals errors
+window.reportWebVitals = () => {};
+globalThis.reportWebVitals = () => {};
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
@@ -16,6 +20,11 @@ style.textContent = `
   body { margin: 0; padding: 0; }
 `;
 document.head.appendChild(style);
+
+// Define it again just to be absolutely sure
+if (typeof reportWebVitals === 'undefined') {
+  window.reportWebVitals = () => {};
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
